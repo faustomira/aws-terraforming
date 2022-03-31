@@ -1,0 +1,19 @@
+FROM public.ecr.aws/lambda/python:3.8
+
+# Copy target file for AWS Lambda context directory
+COPY main.py ${LAMBDA_TASK_ROOT} 
+
+# Copy other file to the same context directory
+COPY requirements.txt .
+
+# Install the function's dependencies using file requirements.txt
+RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+
+# Set AWS Lambda working dir as the main working dir
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# Set read permission for all files and directories inside dir
+RUN chmod 644 ${LAMBDA_TASK_ROOT}/requirements.txt \
+                ${LAMBDA_TASK_ROOT}/main.py
+
+CMD ["main.mainExec"]

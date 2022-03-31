@@ -1,0 +1,32 @@
+resource "aws_redshift_cluster" "elo-nps-elo" {
+    cluster_identifier                  = "fsm-cluster"
+    database_name                       = "fsm_database"
+    cluster_type                        = "single-node"
+    node_type                           = "dc2.large"
+    master_password                     = "S3cr3tP4ssw0rd"
+    master_username                     = "awsuser"
+
+    # An availability zone is a subarea within a region
+    # The appended 'a' specifies a subregion within the defined region
+    availability_zone                   = "${var.region}a" # THIS IS NOT A TYPO
+    
+    
+    preferred_maintenance_window        = "wed:08:00-wed:08:30"
+    cluster_parameter_group_name        = "default.redshift-1.0"
+    automated_snapshot_retention_period = "1"
+    port                                = "5439"
+    cluster_version                     = "1.0"
+    allow_version_upgrade               = "true"
+    number_of_nodes                     = "1"
+    publicly_accessible                 = "true"
+    encrypted                           = "false"
+    skip_final_snapshot                 = "true"
+    
+    iam_roles                           = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/S3Reader"
+    ]
+
+    depends_on  =   [
+        aws_iam_role.S3Reader,
+    ]
+}
